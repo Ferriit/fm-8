@@ -55,4 +55,4 @@ _nmi_handle:
         hlt
 
 _irq_handle:
-     rti
+    rti

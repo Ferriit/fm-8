@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <bits/stdc++.h>
 
 namespace fm_asm {
     using namespace consts;
@@ -71,31 +72,45 @@ namespace fm_asm {
         return out;
     }
 
-    raw_program split_program(const std::string code) {
+    raw_program tokenize(const std::string code) {
     	std::string formatted_code = remove_comments(code);
 
         std::vector<std::string> tokens = split_whitespace(formatted_code);
 
+        std::vector<Section> encountered_sections;
+
         Section section;
+
+        raw_program prog;
 
         std::string prev = "";
         for (std::string tok : tokens) {
+            // Update Section
             if (((tok == ".text") || (tok == ".data") || (tok == ".setup")) && (prev == "section")) {
                 if (tok == ".text") {
-                    section == Section::text;
+                    section = Section::text;
                 }
                 else if (tok == ".data") {
-                    section == Section::data;
+                    section = Section::data;
                 }
                 else if (tok == ".setup") {
-                    section == Section::setup;
+                    section = Section::setup;
+                }
+
+                encountered_sections.push_back(section);
+
+                // Check if section already has been encountered.
+                if (std::count(encountered_sections.begin(), encountered_sections.end(), section) > 1) {
+                    std::cout << "Panic on token \"" << tok << "\"!\n\nExpected new section. Got \"" << tok << "\"." << std::endl;
                 }
             }
 
             else if (section == Section::setup) {
-                
+
             }
+            prev = tok;
         }
+        return prog;
     }
 };
 
@@ -107,6 +122,11 @@ int main(int argc, char** argv) {
 
     std::ifstream file(argv[1]);
 
+    if (!file.is_open()) {
+        std::cout << "Unable to open file!" << std::endl;
+        return 1;
+    }
+
     std::string code;
     std::string line;
     while (getline(file, line)) {
@@ -115,6 +135,6 @@ int main(int argc, char** argv) {
 
     file.close();
 
-    std::cout << fm_asm::remove_comments(code) << std::endl;
+    std::cout << fm_asm::tokenize(code).raw_setup << std::endl;
     return 0;
 }
