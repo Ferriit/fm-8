@@ -101,3 +101,29 @@ HLT                     -   Halt execution.
 0x16 - Program Interrupt (Interrupt triggered by program)   (PINT)
 0x17 - Kernel IRQ (Less urgent Kernel Interrupt)            (KIRQ)
 ```
+
+#### Memory Layout:
+- Memory is laid out in 256 memory pages of 256 bytes each.
+- Page #0 is reserved for variables defined in .data.
+- Page #1 is the first page at which execution begins.
+
+### Assembler Syntax:
+#### Sections:
+##### section .setup
+- Setup is used to define fields for `nmi` and `irq`.
+###### Fields:
+- `nmi` - Sets the label at which to set the NMI Vector.
+- `irq` - Sets the label at which to set the IRQ Vector.
+- `start` - Sets the label at which to start.
+
+##### section .data
+- Data is used to define variable names and sizes.
+###### Fields:
+- `[name] [size]`. Where size is in bytes. The max size of all variables in total is 256 bytes. This allows the user to access the value stored at `[name]` using `setv` and `ldv`.
+
+##### section .text
+- Where the code implementation lives.
+- The labels used in `.setup` must exist.
+
+### Examples:
+Examples can be found in `tests/`. The smallest possible program can be found in `tests/minimalexample.s`

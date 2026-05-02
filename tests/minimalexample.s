@@ -7,6 +7,7 @@ section .data
 
 section .text
 
+; Entry point just halts
 _start:
     hlt
 

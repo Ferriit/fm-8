@@ -43,9 +43,9 @@ namespace fm_asm {
     };
 
     struct raw_program {
-    	std::string setup;
-     	std::string data;
-      	std::string text;
+    	std::string raw_setup;
+     	std::string raw_data;
+      	std::string raw_text;
     };
 
 
@@ -69,6 +69,33 @@ namespace fm_asm {
             out += '\n';
         }
         return out;
+    }
+
+    raw_program split_program(const std::string code) {
+    	std::string formatted_code = remove_comments(code);
+
+        std::vector<std::string> tokens = split_whitespace(formatted_code);
+
+        Section section;
+
+        std::string prev = "";
+        for (std::string tok : tokens) {
+            if (((tok == ".text") || (tok == ".data") || (tok == ".setup")) && (prev == "section")) {
+                if (tok == ".text") {
+                    section == Section::text;
+                }
+                else if (tok == ".data") {
+                    section == Section::data;
+                }
+                else if (tok == ".setup") {
+                    section == Section::setup;
+                }
+            }
+
+            else if (section == Section::setup) {
+                
+            }
+        }
     }
 };
 

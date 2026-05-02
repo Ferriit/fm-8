@@ -121,4 +121,9 @@ namespace consts {
         f,
         sp
     };
+    enum Section {
+        setup,
+        data,
+        text
+    };
 };
