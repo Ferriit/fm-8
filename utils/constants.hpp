@@ -110,4 +110,15 @@ namespace consts {
         {"nop",  OpCode::NOP},
         {"hlt",  OpCode::HLT}
     };
+
+    enum Reg : uint8_t {
+    	ra,
+     	rb,
+      	rc,
+       	rd,
+        re,
+        p,
+        f,
+        sp
+    };
 };
