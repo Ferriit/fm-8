@@ -304,7 +304,7 @@ namespace fm_asm {
 
         std::string nmi = "";
         std::string irq = "";
-        std::string start = "";
+        std::string rst = "";
 
         // Find labels
         for (std::string tok : tokens) {
@@ -317,8 +317,8 @@ namespace fm_asm {
                 else if (prev == "irq") {
                     irq = tok;
                 }
-                else if (prev == "start") {
-                    start = tok;
+                else if (prev == "rst") {
+                    rst = tok;
                 }
             }
 
@@ -328,7 +328,7 @@ namespace fm_asm {
         // Check for label existence
         auto nmi_it = std::find(labels.vec.begin(), labels.vec.end(), nmi);
         auto irq_it = std::find(labels.vec.begin(), labels.vec.end(), irq);
-        auto start_it = std::find(labels.vec.begin(), labels.vec.end(), start);
+        auto start_it = std::find(labels.vec.begin(), labels.vec.end(), rst);
 
         if (nmi_it == labels.vec.end()) {
             std::cerr << "Invalid NMI Vector! Label \"" << nmi << "\" doesn't exist!" << std::endl;
@@ -339,7 +339,7 @@ namespace fm_asm {
             return (setup_section){};
         }
         if (start_it == labels.vec.end()) {
-            std::cerr << "Invalid START Vector! Label \"" << start << "\" doesn't exist!" << std::endl;
+            std::cerr << "Invalid START Vector! Label \"" << rst << "\" doesn't exist!" << std::endl;
             return (setup_section){};
         }
 
@@ -347,7 +347,7 @@ namespace fm_asm {
         setup_section Section;
         Section.nmi_addr = labels.map[nmi];
         Section.irq_addr = labels.map[irq];
-        Section.start_addr = labels.map[start];
+        Section.start_addr = labels.map[rst];
 
         return Section;
     }

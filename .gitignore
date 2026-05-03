@@ -68,6 +68,6 @@ vcpkg_installed/
 Testing/
 .cache/
 
-
+app.fm8
 dist/
 build/

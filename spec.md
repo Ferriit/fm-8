@@ -114,7 +114,7 @@ HLT                     -   Halt execution.
 ###### Fields:
 - `nmi` - Sets the label at which to set the NMI Vector.
 - `irq` - Sets the label at which to set the IRQ Vector.
-- `start` - Sets the label at which to start.
+- `rst` - Sets the label at which to start.
 
 ##### section .data
 - Data is used to define variable names and sizes.

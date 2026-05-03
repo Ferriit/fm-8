@@ -1,7 +1,7 @@
 section .setup
 nmi _nmi_handle     ; Set up labels for nmi and irq vectors
 irq _irq_handle
-start _start
+rst _start
 
 section .data
 vara 32             ; Variable of length 32 bytes
