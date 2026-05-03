@@ -6,6 +6,12 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cctype>
+#include <format>
+
+
+std::string to_hex(uint8_t value) {
+    return std::format("0x{:02X}", value);
+}
 
 namespace utils {
     enum Base {
@@ -37,52 +43,64 @@ namespace helpers {
 
 std::vector<std::string> split_lines(std::string data) {
     std::vector<std::string> out;
-    out.push_back("");
+    std::string current = "";
 
-    size_t idx = 0;
-    for (char& c : data) {
+    for (char c : data) {
         if (c != '\n') {
-            out[idx] += c;
+            current += c;
         }
         else {
-            out.push_back("");
-            idx++;
+            if (!current.empty()) {
+                out.push_back(current);
+                current = "";
+            }
         }
     }
+    if (!current.empty()) out.push_back(current);
+    
     return out;
 }
 
 std::vector<std::string> split_whitespace(std::string data) {
     std::vector<std::string> out;
-    out.push_back("");
+    std::string current = "";
 
-    size_t idx = 0;
-    for (char& c : data) {
-        if ((c != '\n') && (c != ' ') && (c != '\t')) {
-            out[idx] += c;
+    for (char c : data) {
+        if (c != '\n' && c != ' ' && c != '\t' && c != '\r') {
+            current += c;
         }
         else {
-            out.push_back("");
-            idx++;
+            if (!current.empty()) {
+                out.push_back(current);
+                current = "";
+            }
         }
     }
+    if (!current.empty()) out.push_back(current);
+
     return out;
 }
 
 std::vector<std::string> split_tokens(std::string data) {
     std::vector<std::string> out;
-    out.push_back("");
+    std::string current = "";
 
-    size_t idx = 0;
-    for (char& c : data) {
-        if ((c != '\n') && (c != ' ') && (c != '\t') && (c != ',')) {
-            out[idx] += c;
-        }
+    for (char c : data) {
+        if (c != '\n' && c != ' ' && c != '\t' && c != ',') {
+            current += c;
+        } 
         else {
-            out.push_back("");
-            idx++;
+            if (!current.empty()) {
+                out.push_back(current);
+                current = "";
+            }
         }
     }
+    
+    if (!current.empty()) {
+        out.push_back(current);
+    }
+    
     return out;
 }
 

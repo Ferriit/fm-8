@@ -142,45 +142,33 @@ namespace fm_asm {
         return prog;
     }
 
-    data_section parse_data(const std::string code) {
-
-        std::vector<std::string> raw_tokens = split_whitespace(code);
-        std::vector<std::string> tokens;
-        
-        for(auto& t : raw_tokens) if(!t.empty()) tokens.push_back(t);
-
-        data_section section;
-
-        std::string name;
-
-        size_t idx = 0;
-        // Error checking
-        for (std::string tok : tokens) {
-            if (idx % 2 == 0) {
-                if (!is_alpha(tok)) {
-                    std::cerr << "Error: Invalid variable name! Must only contain alphabetic characters! (\"" << tok << "\")" << std::endl;
-                    return section;
-                }
-            }
-            else {
-                if (!is_alnum(tok)) {
-                    std::cerr << "Error: Invalid size! \"" << tok << "\"";
-                    return section;
-                }
-            }
-            idx++;
+    int get_instruction_size(OpCode op) {
+        auto& ops = operand_map[op];
+        int size = 1; // Opcode itself
+        for (auto type : ops) {
+            if (type == OperandType::LABL || type == OperandType::VAR) size += 2;
+            else if (type != OperandType::NONE) size += 1;
         }
+        return size;
+    }
 
-        idx = 0;
+    data_section parse_data(const std::string code) {
+        std::vector<std::string> tokens = split_whitespace(code);
+        data_section section;
+        uint16_t current_offset = 0;
 
-        // Actual parsing
-        for (std::string tok : tokens) {
-            if (idx % 2 == 0) {
-                name = tok;
-            }
-            else {
-                section.vars.vec.push_back(name);
-                section.vars.map[name] = to_int(get_base(tok));
+        for (size_t i = 0; i + 1 < tokens.size(); i += 2) {
+            std::string name = tokens[i];
+            uint16_t size = to_int(get_base(tokens[i+1]));
+
+            section.vars.vec.push_back(name);
+            section.vars.map[name] = current_offset;
+
+            current_offset += size;
+
+            if (current_offset > 256) {
+                std::cerr << "Data section overflow!" << std::endl;
+                break;
             }
         }
         return section;
@@ -279,7 +267,7 @@ namespace fm_asm {
     }
 
     text_section parse_text(const std::string code, data_section data, map_vector labels) {
-        std::vector<std::string> tokens = split_whitespace(code);
+        std::vector<std::string> tokens = split_tokens(code);
 
         text_section section;
         TokenScanner scanner(tokens);
@@ -376,6 +364,30 @@ namespace fm_asm {
 
         return {setup, data, text};
     }
+
+
+    std::vector<uint8_t> generate_assembly(const std::string code) {
+        program prog = parse_program(code);
+        
+        std::cout << std::endl;
+
+        std::vector<uint8_t> bytes;
+        for (int i = 0; i < prog.text.instructions.size(); i++) {
+            std::vector<OperandType> operands = operand_map[prog.text.instructions[i].opcode];
+
+            bytes.push_back(prog.text.instructions[i].opcode);
+            if (operands[0] != OperandType::NONE) {
+                bytes.push_back(prog.text.instructions[i].field1);
+            }
+            if (operands[0] == OperandType::LABL) {
+                bytes.push_back(prog.text.instructions[i].field2);
+            }
+            if (operands.size() == 2) {
+                bytes.push_back(prog.text.instructions[i].field2);
+            }
+        }
+        return bytes;
+    }
 };
 
 int main(int argc, char** argv) {
@@ -399,6 +411,6 @@ int main(int argc, char** argv) {
 
     file.close();
 
-    fm_asm::parse_program(code);
+    std::vector<uint8_t> prog = fm_asm::generate_assembly(code);
     return 0;
 }

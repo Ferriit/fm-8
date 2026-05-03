@@ -11,6 +11,9 @@ section .text
 
 ; Entry point just halts
 _start:
+    ldi ra, 1
+    setv varb, ra
+
     hlt
 
 _nmi_handle:
