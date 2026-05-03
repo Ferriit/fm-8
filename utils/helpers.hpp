@@ -4,6 +4,8 @@
 #include <string>
 #include <unordered_map>
 #include <stdexcept>
+#include <algorithm>
+#include <cctype>
 
 namespace utils {
     enum Base {
@@ -67,6 +69,22 @@ std::vector<std::string> split_whitespace(std::string data) {
     return out;
 }
 
+std::vector<std::string> split_tokens(std::string data) {
+    std::vector<std::string> out;
+    out.push_back("");
+
+    size_t idx = 0;
+    for (char& c : data) {
+        if ((c != '\n') && (c != ' ') && (c != '\t') && (c != ',')) {
+            out[idx] += c;
+        }
+        else {
+            out.push_back("");
+            idx++;
+        }
+    }
+    return out;
+}
 
 
 utils::NumType get_base(const std::string str) {

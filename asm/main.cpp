@@ -8,23 +8,22 @@
 #include <bits/stdc++.h>
 #include <algorithm>
 #include <cctype>
+#include "../utils/tokenscanner.hpp"
 
 
 namespace fm_asm {
     using namespace consts;
     using namespace helpers;
 
+    struct map_vector {
+        std::vector<std::string> vec;
+        std::unordered_map<std::string, uint16_t> map;
+    };
+
     struct instr {
     	OpCode opcode;
-    	uint8_t val1, val2;
-     	Reg reg1, reg2;
+    	uint8_t field1, field2;
     };
-
-    struct var {
-    	std::string name;
-     	uint8_t size;
-    };
-
 
     struct setup_section {
     	uint16_t nmi_addr;
@@ -33,7 +32,7 @@ namespace fm_asm {
     };
 
     struct data_section {
-    	std::vector<var> vars;
+    	map_vector vars;
     };
 
     struct text_section {
@@ -144,7 +143,11 @@ namespace fm_asm {
     }
 
     data_section parse_data(const std::string code) {
-        std::vector<std::string> tokens = split_whitespace(code);
+
+        std::vector<std::string> raw_tokens = split_whitespace(code);
+        std::vector<std::string> tokens;
+        
+        for(auto& t : raw_tokens) if(!t.empty()) tokens.push_back(t);
 
         data_section section;
 
@@ -156,18 +159,19 @@ namespace fm_asm {
             if (idx % 2 == 0) {
                 if (!is_alpha(tok)) {
                     std::cerr << "Error: Invalid variable name! Must only contain alphabetic characters! (\"" << tok << "\")" << std::endl;
-                    return;
+                    return section;
                 }
             }
             else {
                 if (!is_alnum(tok)) {
                     std::cerr << "Error: Invalid size! \"" << tok << "\"";
-                    return;
+                    return section;
                 }
             }
             idx++;
         }
-        size_t idx = 0;
+
+        idx = 0;
 
         // Actual parsing
         for (std::string tok : tokens) {
@@ -175,14 +179,202 @@ namespace fm_asm {
                 name = tok;
             }
             else {
-                var curr_var = {
-                    .name = name,
-                    .size = to_int(get_base(tok))
-                };
-                section.vars.push_back(curr_var);
+                section.vars.vec.push_back(name);
+                section.vars.map[name] = to_int(get_base(tok));
             }
         }
         return section;
+    }
+
+    instr parse_instruction(TokenScanner &scanner, map_vector labels, map_vector vars) {
+        std::string mnemonic = scanner.next(); // Consume the mnemonic immediately
+        instr instruction;
+        
+        OpCode opcode = op_map[mnemonic];
+        instruction.opcode = opcode;
+        std::vector<OperandType> operands = operand_map[opcode];
+    
+        if (!operands.empty() && operands[0] != OperandType::NONE) {
+            std::string tok = scanner.next(); 
+            
+            switch (operands[0]) {
+                case OperandType::VAL:  instruction.field1 = to_int(get_base(tok)); break;
+                case OperandType::REG:  instruction.field1 = reg_map[tok]; break;
+                case OperandType::VAR:  instruction.field1 = vars.map[tok]; break;
+                case OperandType::LABL: {
+                    uint16_t addr = labels.map.count(tok) ? labels.map[tok] : to_int(get_base(tok));
+                    instruction.field1 = (addr >> 8) & 0xFF;
+                    instruction.field2 = addr & 0xFF;
+                    return instruction;
+                }
+            }
+        }
+    
+        // Handle Second Operand
+        if (operands.size() == 2) {
+            scanner.expect(",");
+            std::string tok = scanner.next();
+        
+            switch (operands[1]) {
+                case OperandType::VAL: instruction.field2 = to_int(get_base(tok)); break;
+                case OperandType::REG: instruction.field2 = reg_map[tok]; break;
+                case OperandType::VAR: instruction.field2 = vars.map[tok]; break;
+            }
+        }
+    
+        return instruction;
+    }
+
+    map_vector get_labels(const std::vector<std::string> tokens) {
+        map_vector labels;
+
+        const std::vector<OpCode> jumps = {
+            JMP,
+            BA,
+            BEQ,
+            BNE,
+            BGT,
+            BLT,
+            BGE,
+            BLE,
+            BHI,
+            BLO,
+            BMI,
+            BPL,
+            BVS,
+            BVC,
+            BHS,
+            BLS,
+            CALL,
+        };
+
+        uint16_t address = 0x001;   // 0xFF is the last address of the first page. Execution starts the second page.
+
+        bool prev_jump = false;
+
+        for (std::string tok : tokens) {
+            if (tok.empty()) continue; // Safety check
+
+            auto it = std::find(jumps.begin(), jumps.end(), op_map[tok]);
+            bool jump_instr = (it != jumps.end());
+
+            // Check for label
+            if (tok.back() == ':') {
+                std::string name = tok.substr(0, tok.length() - 1);
+                labels.vec.push_back(name);
+                labels.map[name] = address;
+                continue; 
+            }
+
+            // Jumps are the only instructions to have an operand that takes up two bytes
+            if (!prev_jump) {
+                address++;
+            } else {
+                address += 2;
+            }
+
+            prev_jump = jump_instr;
+        }
+        return labels;
+    }
+
+    text_section parse_text(const std::string code, data_section data, map_vector labels) {
+        std::vector<std::string> tokens = split_whitespace(code);
+
+        text_section section;
+        TokenScanner scanner(tokens);
+
+        while (!scanner.is_at_end()) {
+            std::string tok = scanner.peek();
+
+            if (!tok.empty() && tok.back() == ':') {
+                scanner.next();
+                continue;
+            }
+
+            if (tok.empty()) {
+                scanner.next();
+                continue;
+            }
+
+            try {
+                instr instruction = parse_instruction(scanner, labels, data.vars);
+                section.instructions.push_back(instruction);
+            } catch (const std::exception& e) {
+                std::cerr << "Parsing Error: " << e.what() << " at token: " << tok << std::endl;
+                break; 
+            }
+        }
+
+        return section;
+    }
+
+    setup_section parse_setup(const std::string code, map_vector labels) {
+        std::vector<std::string> tokens = split_whitespace(code);
+
+        std::string prev = "";
+
+        std::string nmi = "";
+        std::string irq = "";
+        std::string start = "";
+
+        // Find labels
+        for (std::string tok : tokens) {
+            auto it = std::find(setup_list.begin(), setup_list.end(), prev);
+
+            if (it != setup_list.end()) {
+                if (prev == "nmi") {
+                    nmi = tok;
+                }
+                else if (prev == "irq") {
+                    irq = tok;
+                }
+                else if (prev == "start") {
+                    start = tok;
+                }
+            }
+
+            prev = tok;
+        }
+
+        // Check for label existence
+        auto nmi_it = std::find(labels.vec.begin(), labels.vec.end(), nmi);
+        auto irq_it = std::find(labels.vec.begin(), labels.vec.end(), irq);
+        auto start_it = std::find(labels.vec.begin(), labels.vec.end(), start);
+
+        if (nmi_it == labels.vec.end()) {
+            std::cerr << "Invalid NMI Vector! Label \"" << nmi << "\" doesn't exist!" << std::endl;
+            return (setup_section){};
+        }
+        if (irq_it == labels.vec.end()) {
+            std::cerr << "Invalid IRQ Vector! Label \"" << irq << "\" doesn't exist!" << std::endl;
+            return (setup_section){};
+        }
+        if (start_it == labels.vec.end()) {
+            std::cerr << "Invalid START Vector! Label \"" << start << "\" doesn't exist!" << std::endl;
+            return (setup_section){};
+        }
+
+        // Construct section thingy
+        setup_section Section;
+        Section.nmi_addr = labels.map[nmi];
+        Section.irq_addr = labels.map[irq];
+        Section.start_addr = labels.map[start];
+
+        return Section;
+    }
+
+    program parse_program(const std::string code) {
+        raw_program raw = split_sections(code);
+
+        std::vector<std::string> text_tokens = split_whitespace(raw.raw_text);
+        map_vector labels = get_labels(text_tokens);
+
+        setup_section setup = parse_setup(raw.raw_setup, labels); 
+        data_section data = parse_data(raw.raw_data);
+        text_section text = parse_text(raw.raw_text, data, labels);
+
+        return {setup, data, text};
     }
 };
 
@@ -207,10 +399,6 @@ int main(int argc, char** argv) {
 
     file.close();
 
-    fm_asm::raw_program split_code = fm_asm::split_sections(code);
-
-    std::cout << split_code.raw_setup << std::endl;
-    std::cout << split_code.raw_data << std::endl;
-    std::cout << split_code.raw_text << std::endl;
+    fm_asm::parse_program(code);
     return 0;
 }

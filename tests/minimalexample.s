@@ -4,8 +4,8 @@ irq _irq_handle
 start _start
 
 section .data
-var1 32             ; Variable of length 32 bytes
-var2 1              ; Single letter or number
+vara 32             ; Variable of length 32 bytes
+varb 1              ; Single letter or number
 
 section .text
 

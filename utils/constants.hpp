@@ -23,8 +23,8 @@ namespace consts {
         TST,
         CMP,
 
-        JMP,    // Jump Absolute
-        BA,     // Jump Relative (Branch)
+        JMP,    // Jump Relative
+        BA,     // Jump Absolute (Branch)
         BEQ,
         BNE,
         BGT,
@@ -65,6 +65,59 @@ namespace consts {
         START
     };
 
+    enum OperandType {
+        NONE,
+        VAL,
+        REG,
+        LABL,
+        VAR
+    };
+
+    std::vector<std::vector<OperandType>> operand_map = {
+        {OperandType::REG, OperandType::REG},       // add
+        {OperandType::REG, OperandType::REG},       // sub
+        {OperandType::REG, OperandType::REG},       // mul
+        {OperandType::REG},                         // inc
+        {OperandType::REG},                         // dec
+        {OperandType::REG, OperandType::REG},       // and
+        {OperandType::REG},                         // not
+        {OperandType::REG, OperandType::REG},       // or
+        {OperandType::REG, OperandType::REG},       // eor
+        {OperandType::REG},                         // shr
+        {OperandType::REG},                         // shl
+        {OperandType::REG, OperandType::REG},       // tst
+        {OperandType::REG, OperandType::REG},       // cmp
+        {OperandType::LABL},                        // jmp
+        {OperandType::LABL},                        // ba
+        {OperandType::LABL},                        // beq
+        {OperandType::LABL},                        // bne
+        {OperandType::LABL},                        // bgt
+        {OperandType::LABL},                        // blt
+        {OperandType::LABL},                        // bge
+        {OperandType::LABL},                        // ble
+        {OperandType::LABL},                        // bhi
+        {OperandType::LABL},                        // blo
+        {OperandType::LABL},                        // bmi
+        {OperandType::LABL},                        // bpl
+        {OperandType::LABL},                        // bvs
+        {OperandType::LABL},                        // bvc
+        {OperandType::LABL},                        // bhs
+        {OperandType::LABL},                        // bls
+        {OperandType::LABL},                        // call
+        {OperandType::NONE},                        // ret
+        {OperandType::NONE},                        // int
+        {OperandType::NONE},                        // rti
+        {OperandType::REG, OperandType::REG},       // mov
+        {OperandType::REG, OperandType::VAL},       // ldi
+        {OperandType::VAR, OperandType::REG},       // setv
+        {OperandType::REG, OperandType::VAR},       // ldv
+        {OperandType::REG, OperandType::REG},       // seta
+        {OperandType::REG, OperandType::REG},       // lda
+        {OperandType::REG},                         // push
+        {OperandType::REG},                         // pop
+        {OperandType::NONE},                        // nop
+        {OperandType::NONE},                        // hlt
+    };
 
     std::unordered_map<std::string, OpCode> op_map = {
         // Arithmetic & Logic
@@ -133,7 +186,7 @@ namespace consts {
         {"start", SetupField::START}
     };
 
-    std::vector<std::string> setup_lst = {
+    std::vector<std::string> setup_list = {
         "nmi",
         "irq",
         "start"
@@ -149,6 +202,18 @@ namespace consts {
         f,
         sp
     };
+
+    std::unordered_map<std::string, Reg> reg_map = {
+        {"ra", Reg::ra},
+        {"rb", Reg::rb},
+        {"rc", Reg::rc},
+        {"rd", Reg::rd},
+        {"re", Reg::re},
+        {"p",  Reg::p},
+        {"f",  Reg::f},
+        {"sp", Reg::sp}
+    };
+
     enum Section {
         none,
         setup,
