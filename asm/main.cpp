@@ -339,7 +339,7 @@ namespace fm_asm {
             return (setup_section){};
         }
         if (start_it == labels.vec.end()) {
-            std::cerr << "Invalid START Vector! Label \"" << rst << "\" doesn't exist!" << std::endl;
+            std::cerr << "Invalid RST Vector! Label \"" << rst << "\" doesn't exist!" << std::endl;
             return (setup_section){};
         }
 
@@ -366,14 +366,23 @@ namespace fm_asm {
     }
 
 
+    void push_16_t(std::vector<uint8_t> &bytes, uint16_t elem) {
+        uint8_t upper = (elem >> 8) & 0xFF;
+        uint8_t lower = elem & 0xFF;
+
+        bytes.push_back(upper);
+        bytes.push_back(lower);
+    }
+
+
     std::vector<uint8_t> generate_assembly(const std::string code) {
         program prog = parse_program(code);
 
         std::vector<uint8_t> bytes;
 
-        bytes.push_back(prog.setup.nmi_addr);
-        bytes.push_back(prog.setup.irq_addr);
-        bytes.push_back(prog.setup.start_addr);
+        push_16_t(bytes, prog.setup.nmi_addr);
+        push_16_t(bytes, prog.setup.irq_addr);
+        push_16_t(bytes, prog.setup.start_addr);
 
         for (int i = 0; i < prog.text.instructions.size(); i++) {
             std::vector<OperandType> operands = operand_map[prog.text.instructions[i].opcode];

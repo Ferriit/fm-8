@@ -68,9 +68,8 @@ HLT                     -   Halt execution.
     * BIOS.
     * Normal programs.
 
-- To handle interrupts, addresses 0xFFFA - 0xFFFB, 0xFFFC - 0xFFFD, and 0xFFFE - 0xFFFF have to be populated.
+- To handle interrupts, addresses 0xFFFA - 0xFFFB, and 0xFFFE - 0xFFFF have to be populated.
     * 0xFFFA - 0xFFFB   -   NMI Vector.
-    * 0xFFFC - 0xFFFD   -   RST Vector.
     * 0xFFFE - 0xFFFF   -   IRQ Vector.
 
 - The NMI Vector is a the address where the code for urgent interrupts (Out of memory, Low Energy, etc. etc.) lives.
@@ -106,6 +105,10 @@ HLT                     -   Halt execution.
 - Memory is laid out in 256 memory pages of 256 bytes each.
 - Page #0 is reserved for variables defined in .data.
 - Page #1 is the first page at which execution begins.
+##### Memory portions:
+- `0xFFFA + 0xFFFB` - NMI Vector. Where the CPU goes after non-maskable interrupts.
+- `0xFFFC + 0xFFFD` - RST Vector. Where the CPU starts after reset and bootup.
+- `0xFFFE + 0xFFFF` - IRQ Vector. Where the CPU goes after normal interrupt requests.
 
 ### Assembler Syntax:
 #### Sections:

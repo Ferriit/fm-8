@@ -189,7 +189,7 @@ namespace consts {
     std::vector<std::string> setup_list = {
         "nmi",
         "irq",
-        "start"
+        "rst"
     };
 
     enum Reg : uint8_t {
