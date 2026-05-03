@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 
 namespace consts {
@@ -58,6 +59,13 @@ namespace consts {
         HLT,
     };
 
+    enum SetupField : uint8_t {
+        NMI,
+        IRQ,
+        START
+    };
+
+
     std::unordered_map<std::string, OpCode> op_map = {
         // Arithmetic & Logic
         {"add",  OpCode::ADD},
@@ -95,7 +103,7 @@ namespace consts {
         {"call", OpCode::CALL},
         {"ret",  OpCode::RET},
 
-        {"int", OpCode::INT},
+        {"int",  OpCode::INT},
         {"rti",  OpCode::RTI},
 
         {"mov",  OpCode::MOV},
@@ -111,6 +119,26 @@ namespace consts {
         {"hlt",  OpCode::HLT}
     };
 
+    std::vector<std::string> op_list = {
+        "add", "sub", "mul", "inc", "dec", "and", "not", "or", "eor", "xor",
+        "shr", "shl", "tst", "cmp", "jmp", "ba", "beq", "bne", "bgt", "blt",
+        "bge", "ble", "bhi", "blo", "bmi", "bpl", "vs", "bvc", "bhs", "bls",
+        "call", "ret", "int", "rti", "mov", "ldi", "setv", "ldv", "seta",
+        "lda", "push", "pop", "nop", "hlt"
+    };
+
+    std::unordered_map<std::string, SetupField> setup_map = {
+        {"nmi", SetupField::NMI},
+        {"irq", SetupField::IRQ},
+        {"start", SetupField::START}
+    };
+
+    std::vector<std::string> setup_lst = {
+        "nmi",
+        "irq",
+        "start"
+    };
+
     enum Reg : uint8_t {
     	ra,
      	rb,
@@ -122,6 +150,7 @@ namespace consts {
         sp
     };
     enum Section {
+        none,
         setup,
         data,
         text
