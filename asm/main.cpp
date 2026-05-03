@@ -368,10 +368,13 @@ namespace fm_asm {
 
     std::vector<uint8_t> generate_assembly(const std::string code) {
         program prog = parse_program(code);
-        
-        std::cout << std::endl;
 
         std::vector<uint8_t> bytes;
+
+        bytes.push_back(prog.setup.nmi_addr);
+        bytes.push_back(prog.setup.irq_addr);
+        bytes.push_back(prog.setup.start_addr);
+
         for (int i = 0; i < prog.text.instructions.size(); i++) {
             std::vector<OperandType> operands = operand_map[prog.text.instructions[i].opcode];
 
@@ -389,6 +392,20 @@ namespace fm_asm {
         return bytes;
     }
 };
+
+
+std::string get_output_name(int argc, char** argv) {
+    std::string prev = "";
+
+    for (int i = 0; i < argc; i++) {
+        if (prev == "-o") {
+            return std::string(argv[i]);
+        }
+
+        prev = argv[i];
+    }
+    return "app.fm8";
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -412,5 +429,16 @@ int main(int argc, char** argv) {
     file.close();
 
     std::vector<uint8_t> prog = fm_asm::generate_assembly(code);
+
+    std::ofstream outfile(get_output_name(argc, argv), std::ios::out | std::ios::binary);
+
+    if (!outfile.is_open()) {
+        std::cerr << "Error: Could not open file for writing!" << std::endl;
+        return 1;
+    }
+
+    outfile.write(reinterpret_cast<const char*>(prog.data()), prog.size());
+    outfile.close();
+
     return 0;
 }
