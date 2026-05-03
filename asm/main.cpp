@@ -12,6 +12,7 @@
 
 namespace fm_asm {
     using namespace consts;
+    using namespace helpers;
 
     struct instr {
     	OpCode opcode;
@@ -143,20 +144,58 @@ namespace fm_asm {
     }
 
     data_section parse_data(const std::string code) {
-        
+        std::vector<std::string> tokens = split_whitespace(code);
+
+        data_section section;
+
+        std::string name;
+
+        size_t idx = 0;
+        // Error checking
+        for (std::string tok : tokens) {
+            if (idx % 2 == 0) {
+                if (!is_alpha(tok)) {
+                    std::cerr << "Error: Invalid variable name! Must only contain alphabetic characters! (\"" << tok << "\")" << std::endl;
+                    return;
+                }
+            }
+            else {
+                if (!is_alnum(tok)) {
+                    std::cerr << "Error: Invalid size! \"" << tok << "\"";
+                    return;
+                }
+            }
+            idx++;
+        }
+        size_t idx = 0;
+
+        // Actual parsing
+        for (std::string tok : tokens) {
+            if (idx % 2 == 0) {
+                name = tok;
+            }
+            else {
+                var curr_var = {
+                    .name = name,
+                    .size = to_int(get_base(tok))
+                };
+                section.vars.push_back(curr_var);
+            }
+        }
+        return section;
     }
 };
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::cout << "Filename required!" << std::endl;
+        std::cerr << "Filename required!" << std::endl;
         return 1;
     }
 
     std::ifstream file(argv[1]);
 
     if (!file.is_open()) {
-        std::cout << "Failed to open file!" << std::endl;
+        std::cerr << "Failed to open file!" << std::endl;
         return 1;
     }
 

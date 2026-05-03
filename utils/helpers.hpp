@@ -19,6 +19,20 @@ namespace utils {
     };
 };
 
+namespace helpers {
+    bool is_numeric(const std::string& s) {
+        return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+    }
+
+    bool is_alpha(const std::string& s) {
+        return !s.empty() && std::all_of(s.begin(), s.end(), ::isalpha);
+    }
+    
+    bool is_alnum(const std::string& s) {
+        return !s.empty() && std::all_of(s.begin(), s.end(), ::isalnum);
+    }
+};
+
 std::vector<std::string> split_lines(std::string data) {
     std::vector<std::string> out;
     out.push_back("");
