@@ -161,8 +161,16 @@ namespace fm_asm {
             std::string name = tokens[i];
             uint16_t size = to_int(get_base(tokens[i+1]));
 
-            section.vars.vec.push_back(name);
-            section.vars.map[name] = current_offset;
+            auto it = std::find(section.vars.vec.begin(), section.vars.vec.end(), name);
+
+            if (it != section.vars.vec.end()) {
+                section.vars.vec.push_back(name);
+                section.vars.map[name] = current_offset;
+            }
+            else {
+                std::cerr << "Variable \"" << name << "\" declared more than once!" << std::endl;
+                return;
+            }
 
             current_offset += size;
 
