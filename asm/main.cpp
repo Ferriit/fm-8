@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cctype>
 #include "../utils/tokenscanner.hpp"
+#include "../utils/logging.hpp"
 
 
 namespace fm_asm {
@@ -111,7 +112,7 @@ namespace fm_asm {
 
                 // Check if section already has been encountered.
                 if (std::count(encountered_sections.begin(), encountered_sections.end(), section) > 1) {
-                    std::cout << "Panic on token \"" << tok << "\"!\n\nExpected new section. Got \"" << tok << "\"." << std::endl;
+                    log_err("Panic on token \"" + tok + "\"!\n\n\x1b[0mExpected new section. Got \"" + tok + "\".");
                 }
             }
             else if (tok != "section") {
@@ -168,14 +169,14 @@ namespace fm_asm {
                 section.vars.map[name] = current_offset;
             }
             else {
-                std::cerr << "Variable \"" << name << "\" declared more than once!" << std::endl;
+                log_err("Variable \"" + name + "\" declared more than once!");
                 break;
             }
 
             current_offset += size;
 
             if (current_offset > 256) {
-                std::cerr << "Data section overflow!" << std::endl;
+                log_err("Data section overflow!");
                 break;
             }
         }
@@ -297,7 +298,8 @@ namespace fm_asm {
                 instr instruction = parse_instruction(scanner, labels, data.vars);
                 section.instructions.push_back(instruction);
             } catch (const std::exception& e) {
-                std::cerr << "Parsing Error: " << e.what() << " at token: " << tok << std::endl;
+                std::string str = e.what();
+                log_err("Parsing Error: " + str + " at token \"" + tok + "\".");
                 break; 
             }
         }
@@ -339,15 +341,15 @@ namespace fm_asm {
         auto start_it = std::find(labels.vec.begin(), labels.vec.end(), rst);
 
         if (nmi_it == labels.vec.end()) {
-            std::cerr << "Invalid NMI Vector! Label \"" << nmi << "\" doesn't exist!" << std::endl;
+            log_err("Invalid NMI Vector! Label \"" + nmi + "\" doesn't exist!");
             return (setup_section){};
         }
         if (irq_it == labels.vec.end()) {
-            std::cerr << "Invalid IRQ Vector! Label \"" << irq << "\" doesn't exist!" << std::endl;
+            log_err("Invalid IRQ Vector! Label \"" + irq + "\" doesn't exist!");
             return (setup_section){};
         }
         if (start_it == labels.vec.end()) {
-            std::cerr << "Invalid RST Vector! Label \"" << rst << "\" doesn't exist!" << std::endl;
+            log_err("Invalid RST Vector! Label \"" + rst + "\" doesn't exist!");
             return (setup_section){};
         }
 
@@ -426,14 +428,14 @@ std::string get_output_name(int argc, char** argv) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::cerr << "Filename required!" << std::endl;
+        log_err("Filename required!");
         return 1;
     }
 
     std::ifstream file(argv[1]);
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file!" << std::endl;
+        log_err("Failed to open file!");
         return 1;
     }
 
@@ -450,7 +452,7 @@ int main(int argc, char** argv) {
     std::ofstream outfile(get_output_name(argc, argv), std::ios::out | std::ios::binary);
 
     if (!outfile.is_open()) {
-        std::cerr << "Error: Could not open file for writing!" << std::endl;
+        log_err("Could not open file for writing!");
         return 1;
     }
 
