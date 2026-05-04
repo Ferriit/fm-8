@@ -169,7 +169,7 @@ namespace fm_asm {
             }
             else {
                 std::cerr << "Variable \"" << name << "\" declared more than once!" << std::endl;
-                return;
+                break;
             }
 
             current_offset += size;
