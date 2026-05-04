@@ -163,7 +163,7 @@ namespace fm_asm {
 
             auto it = std::find(section.vars.vec.begin(), section.vars.vec.end(), name);
 
-            if (it != section.vars.vec.end()) {
+            if (it == section.vars.vec.end()) {
                 section.vars.vec.push_back(name);
                 section.vars.map[name] = current_offset;
             }
