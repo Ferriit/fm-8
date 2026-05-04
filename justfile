@@ -7,11 +7,11 @@ _build_dir:
 
 # Builds the Assembler
 asm: _build_dir
-	{{CXX}} {{asm_csrc}} -o dist/assembler
+	{{CXX}} {{asm_csrc}} -o dist/assembler -std=c++20
 
 # Builds the Emulator
 emu: _build_dir
-	{{CXX}} {{emu_csrc}} -o dist/emulator
+	{{CXX}} {{emu_csrc}} -o dist/emulator -std=c++20
 
 # Builds the Assembler and Emulator
 [default]
