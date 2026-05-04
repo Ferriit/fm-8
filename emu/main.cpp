@@ -33,6 +33,15 @@ int load_memory(memory &mem, const std::vector<uint8_t> &code) {
     return 0;
 }
 
+struct processor {
+private:
+    memory mem;
+    uint16_t addr = 0x100;
+
+public:
+    
+};
+
 int main(int argc, char** argv) {
     if (argc < 2) {
         log_err("Filename required!");
