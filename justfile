@@ -6,6 +6,11 @@ _build_dir:
 	mkdir -p build/
 	mkdir -p dist/
 
+# Just git push
+push message:
+	git add .
+	git commit -m "{{message}}"
+	git push
 
 # Builds the Assembler
 build_asm: _build_dir
