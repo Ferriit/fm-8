@@ -15,7 +15,7 @@ public:
         pages[page][addr] = val;
     }
     
-    uint8_t read(uint16_t addr, uint8_t val) {
+    uint8_t read(uint16_t addr) {
         return get_content(addr >> 8, addr & 0x00FF);
     }
 
@@ -27,6 +27,18 @@ public:
         uint8_t low = pages[page][low_addr];
         uint8_t high = pages[page][low_addr + 1];
         return (static_cast<uint16_t>(high) << 8) | low;
+    }
+
+    uint16_t get_nmi() {
+        return get_vector(0xFF, 0xFA);
+    }
+
+    uint16_t get_rst() {
+        return get_vector(0xFF, 0xFC);
+    }
+
+    uint16_t get_irq() {
+        return get_vector(0xFF, 0xFE);
     }
 
     void set_vector(uint8_t page, uint8_t low_addr, uint16_t value) {
