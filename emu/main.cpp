@@ -4,7 +4,10 @@
 #include <fstream>
 #include "memory.hpp"
 #include "../utils/logging.hpp"
+#include "../utils/constants.hpp"
 
+
+using namespace consts;
 
 int load_memory(memory &mem, const std::vector<uint8_t> &code) {
     if (code.size() < 6) {
@@ -39,7 +42,14 @@ private:
     uint16_t addr = 0x100;
 
 public:
-    
+    uint16_t get_instr_length(OpCode opcode) {
+        std::vector<OperandType> operands = operand_map[opcode];
+
+        if (operands[0] != OperandType::NONE) {
+            return (uint16_t)operands.size();
+        }
+        return (uint16_t)0;
+    }
 };
 
 int main(int argc, char** argv) {
