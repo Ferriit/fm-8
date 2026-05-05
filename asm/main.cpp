@@ -185,6 +185,7 @@ namespace fm_asm {
 
     instr parse_instruction(TokenScanner &scanner, map_vector labels, map_vector vars) {
         std::string mnemonic = scanner.next(); // Consume the mnemonic immediately
+        scanner.byte++;
         instr instruction;
         
         OpCode opcode = op_map[mnemonic];
@@ -199,18 +200,29 @@ namespace fm_asm {
                 case OperandType::REG:  instruction.field1 = reg_map[tok]; break;
                 case OperandType::VAR:  instruction.field1 = vars.map[tok]; break;
                 case OperandType::LABL: {
-                    uint16_t addr = labels.map.count(tok) ? labels.map[tok] : to_int(get_base(tok));
+
+                    uint16_t addr = 0;
+                    if (opcode == OpCode::BA) {
+                        addr = labels.map.count(tok) ? labels.map[tok] : to_int(get_base(tok));
+                    }
+                    else {
+                        addr = scanner.byte - (labels.map.count(tok) ? labels.map[tok] : to_int(get_base(tok)));
+                    }
                     instruction.field1 = (addr >> 8) & 0xFF;
                     instruction.field2 = addr & 0xFF;
+                    scanner.byte++;
+                    scanner.byte++;
+
                     return instruction;
                 }
             }
         }
-    
+        scanner.byte++;
         // Handle Second Operand
         if (operands.size() == 2) {
             scanner.expect(",");
             std::string tok = scanner.next();
+            scanner.byte++;
         
             switch (operands[1]) {
                 case OperandType::VAL: instruction.field2 = to_int(get_base(tok)); break;

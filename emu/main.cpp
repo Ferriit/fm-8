@@ -46,9 +46,15 @@ public:
         std::vector<OperandType> operands = operand_map[opcode];
 
         if (operands[0] != OperandType::NONE) {
-            return (uint16_t)operands.size();
+            return (uint16_t)(operands.size() + 1);
         }
-        return (uint16_t)0;
+        return (uint16_t)1;
+    }
+
+    void execute_instr(uint8_t opcode, uint8_t op1, uint8_t op2) {
+        uint16_t size = get_instr_length((OpCode)opcode);
+
+        
     }
 };
 

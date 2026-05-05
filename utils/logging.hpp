@@ -12,6 +12,6 @@ void log_warn(std::string msg) {
 }
 
 void log(std::string msg) {
-    std::cout << "\x1b[1;38;5;117m[INFO]: \x1b[22m" << msg << "\x1b[0m" << std::endl;
+    std::cout << "\x1b[1;38;5;159m[INFO]: \x1b[22m" << msg << "\x1b[0m" << std::endl;
 }
 

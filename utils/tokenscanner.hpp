@@ -7,6 +7,7 @@ private:
     size_t cursor = 0;
 
 public:
+    uint16_t byte = 0;
     TokenScanner(std::vector<std::string> t) : tokens(t) {}
 
     std::string peek() {        // Check current
