@@ -86,7 +86,7 @@ HLT                     -   Halt execution.
 0x02 - Watchdog Timer   (Set 0xFFF8 to 255)                 (WT)
 0x03 - Memory Parity Error (Bitflip)                        (MPE)
 0x04 - Kernel Interrupt (Interrupt triggered by Kernel)     (KINT)
-0x05 - Power Off (Power down button was pressed)            (DOWN)
+0x05 - Power Off (Power down button was pressed)            (POFF)
 ```
 
 #### IRQ:

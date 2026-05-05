@@ -4,16 +4,10 @@ irq _irq_handle
 rst _start
 
 section .data
-vara 32             ; Variable of length 32 bytes
-varb 1              ; Single letter or number
 
 section .text
-
 ; Entry point just halts
 _start:
-    ldi ra, 1
-    setv varb, ra
-
     hlt
 
 _nmi_handle:
@@ -31,14 +25,14 @@ _nmi_handle:
     ; Check for Shutdown
     ldi rb, 0x05
     cmp ra, rb
-    beq .shutdown
+    beq nmi_shutdown
 
     ; Check for Watchdog Timer
     ldi rb, 0x02
     cmp ra, rb
-    beq .watchdog
+    beq nmi_watchdog
 
-    .done:
+    nmi_done:
     pop f
     pop p
     pop rd
@@ -48,15 +42,15 @@ _nmi_handle:
     rti
 
     ; Reset Watchdog Timer since there is no infinite loop
-    .watchdog:
+    nmi_watchdog:
         ldi rb, 255
         ldi rc, 0xF8
         stra rc, rb
 
-        jmp .done
+        jmp nmi_done
 
     ; Halt the CPU
-    .shutdown:
+    nmi_shutdown:
         hlt
 
 _irq_handle:
