@@ -197,10 +197,14 @@ namespace consts {
      	rb,
       	rc,
        	rd,
-        re,
+        rw,
+        rx,
+        ry,
+        rz,
         p,
         f,
-        sp
+        sp,
+        pc
     };
 
     std::unordered_map<std::string, Reg> reg_map = {
@@ -208,10 +212,14 @@ namespace consts {
         {"rb", Reg::rb},
         {"rc", Reg::rc},
         {"rd", Reg::rd},
-        {"re", Reg::re},
+        {"rw", Reg::rw},
+        {"rx", Reg::rx},
+        {"ry", Reg::ry},
+        {"rz", Reg::rz},
         {"p",  Reg::p},
         {"f",  Reg::f},
-        {"sp", Reg::sp}
+        {"sp", Reg::sp},
+        {"pc", Reg::pc}
     };
 
     enum Section {

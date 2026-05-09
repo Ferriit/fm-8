@@ -54,7 +54,11 @@ public:
     void execute_instr(uint8_t opcode, uint8_t op1, uint8_t op2) {
         uint16_t size = get_instr_length((OpCode)opcode);
 
-        
+        switch (opcode) {
+            case (OpCode::ADD) : {
+
+            }
+        }
     }
 };
 

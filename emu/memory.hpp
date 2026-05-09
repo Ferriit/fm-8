@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "../utils/constants.hpp"
 
 struct memory {
 private:
@@ -47,3 +48,35 @@ public:
         pages[page][low_addr + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
     }
 };
+
+
+class regs {
+private:
+    uint8_t* registers;
+    
+public:
+    regs() {
+        registers = new uint8_t[consts::reg_map.size()];
+    }
+
+    uint8_t get_reg(consts::Reg reg) {
+        return registers[reg];
+    }
+
+    uint16_t get_pc() {
+        return registers[consts::Reg::pc];
+    }
+
+    void set_reg(consts::Reg reg, uint8_t val) {
+        registers[reg] = val;
+    }
+
+    void set_pc(uint16_t val) {
+        registers[consts::Reg::pc] = val;
+    }
+
+    ~regs() {
+        delete[] registers;
+    }
+};
+
