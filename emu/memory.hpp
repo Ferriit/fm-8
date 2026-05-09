@@ -59,7 +59,7 @@ public:
         registers = new uint8_t[consts::reg_map.size()];
     }
 
-    uint8_t get_reg(consts::Reg reg) {
+    uint8_t get_reg(uint8_t reg) {
         return registers[reg];
     }
 
@@ -67,12 +67,20 @@ public:
         return registers[consts::Reg::pc];
     }
 
-    void set_reg(consts::Reg reg, uint8_t val) {
+    void set_reg(uint8_t reg, uint8_t val) {
         registers[reg] = val;
     }
 
     void set_pc(uint16_t val) {
         registers[consts::Reg::pc] = val;
+    }
+
+    void set_flag(consts::Flag f, bool val) {
+        registers[consts::Reg::f] = (uint8_t)val << f;
+    }
+
+    bool get_flag(consts::Flag f) {
+        return (registers[consts::Reg::f] >> f) & 0x01;
     }
 
     ~regs() {

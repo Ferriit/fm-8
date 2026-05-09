@@ -222,6 +222,14 @@ namespace consts {
         {"pc", Reg::pc}
     };
 
+    enum Flag : uint8_t {
+        Z,
+        C,
+        V,
+        N,
+        I
+    };
+
     enum Section {
         none,
         setup,

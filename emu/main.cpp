@@ -40,6 +40,7 @@ struct processor {
 private:
     memory mem;
     uint16_t addr = 0x100;
+    regs registers;
 
 public:
     uint16_t get_instr_length(OpCode opcode) {
@@ -56,7 +57,37 @@ public:
 
         switch (opcode) {
             case (OpCode::ADD) : {
+                 uint8_t a = registers.get_reg(op1);
+                 uint8_t b = registers.get_reg(op2);
 
+                 registers.set_reg(op1, a + b);
+                 break;
+            }
+            case (OpCode::SUB): {
+                 uint8_t a = registers.get_reg(op1);
+                 uint8_t b = registers.get_reg(op2);
+
+                 registers.set_reg(op1, a - b);
+                 break;
+            }
+            case (OpCode::MUL): {
+                 uint8_t a = registers.get_reg(op1);
+                 uint8_t b = registers.get_reg(op2);
+
+                 registers.set_reg(op1, a * b);
+                 break;
+            }
+            case (OpCode::INC): {
+                uint8_t reg = registers.get_reg(op1);
+
+                registers.set_reg(op1, reg + 1);
+                break;
+            }
+            case (OpCode::DEC): {
+                uint8_t reg = registers.get_reg(op1);
+
+                registers.set_reg(op1, reg - 1);
+                break;
             }
         }
     }
